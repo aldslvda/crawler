@@ -1,7 +1,3 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
-import os
 import time
 import base64
 import hashlib
@@ -67,18 +63,18 @@ class AuthCode(object):
         if operation == 'DECODE':
             handled_string = base64.b64decode(input_string[rand_key_length:])
         else:
-            expiration_time = expiry + int(time.time) if expiry else 0
+            expiration_time = expiry + int(time.time()) if expiry else 0
             handled_string = '%010d' % expiration_time + cls._md5(input_string + key_b)[:16] + input_string
 
         rand_key = list()
-        for i in xrange(256):
+        for i in range(256):
             rand_key.append(ord(crypt_key[i % len(crypt_key)]))
 
         # ----------------------------------------------------------
 
-        box = range(256)
+        box = [i for i in range(256)]
         j = 0
-        for i in xrange(256):
+        for i in range(256):
             j = (j + box[i] + rand_key[i]) % 256
             tmp = box[i]
             box[i] = box[j]
@@ -92,7 +88,7 @@ class AuthCode(object):
         result = ''
         a = 0
         j = 0
-        for i in xrange(len(handled_string)):
+        for i in range(len(handled_string)):
             a = (a + 1) % 256
             j = (j + box[a]) % 256
             tmp = box[a]
@@ -111,19 +107,21 @@ class AuthCode(object):
 
         return output_string
 
+
 if __name__ == '__main__':
     src = 'My name is Hu Ang, I\'m a programmer.'
     key = 'fr1e54b8t4n4m47'
     encoded_string = AuthCode.encode(src, key)
     decoded_string = AuthCode.decode(encoded_string, key)
-    print 'Source String:', src
-    print 'After Encode :', encoded_string
-    print 'After Decode :', decoded_string
-    print '----------------------------------------------'
+    print('Source String:', src)
+    print('After Encode :', encoded_string)
+    print('After Decode :', decoded_string)
+    print('----------------------------------------------')
     # 通过 PHP 方式加密得到的一个密文，然后用 Python 解密
     # $source_string = "My name is Hu Ang.";
     # $secret_key = 'fr1e54b8t4n4m47';
     # $encoded_string = authcode($source_string, 'ENCODE', $secret_key, 0);
     php_encoded_string = '82798mEQ6ouQo1rFrbSXT5EHVjZ0gH0WuuZDXd9us/q44JAhmPwBAFZqvwXhvnjgUOJ+5aYh5ed8zNL3cjTOGBY='
-    print 'Decode string encoded via php:', AuthCode.decode(php_encoded_string, key)
+    print('Decode string encoded via php:', AuthCode.decode(php_encoded_string, key))
     # PS：Python 方式加密过的字符串通过 PHP 解析也成功了。
+

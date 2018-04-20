@@ -1,20 +1,14 @@
-#!/usr/bin/env python
-
-import os
-import sys
 import time
 import socket
 import traceback
 
-from kombu import Connection, Exchange, Queue, Consumer, eventloop, Producer
-from kombu.transport.librabbitmq import ConnectionError
-from kombu.pools import producers
-import json
+from kombu import Connection, Exchange, Queue, Producer
 
-class appCrawlerQueue(object): 
-    '''
+
+class AppCrawlerQueue(object):
+    """
     crawler result put into the rabbit mq
-    '''
+    """
     def __init__(self, addr, exchange, routing_key, queue_name, logger = None):
         self._exch = Exchange(exchange)
         self._addr = addr
@@ -28,7 +22,7 @@ class appCrawlerQueue(object):
     
     def setConsumer(self):
         self._consumer = self._conn.Consumer(self._queue,
-                callbacks=[self.processTask])
+                                             callbacks=[self.processTask])
         self._consumer.qos(prefetch_count=1)
         self._consumer.consume()
 
@@ -54,20 +48,10 @@ class appCrawlerQueue(object):
         self._task = None
         try:
             self._conn.drain_events(timeout=1)
-        except socket.timeout, e:
-            #this case means self._conn timeout
+        except socket.timeout:
             pass
-        except ConnectionError,e:
-            self._logger.error('some error happens:[%s]' %e)
-            time.sleep(10)
-            try:
-                self.reConn()
-                self.setConsumer()
-            except Exception, e:
-                #this case means there is net interupt
-                self._logger.error('recon rabbitmq error[%s]' %e)
-        except Exception, e:
-            self._logger.error('unknown error[%s]' %e)
+        except:
+            self._logger.error('unknown error[%s]' %traceback.format_exc())
             pass
         finally:
             time.sleep(0.1)
@@ -75,17 +59,17 @@ class appCrawlerQueue(object):
         return self._task
     
     def setTask(self, task):
-        self._result = task
+        result = task
         for i in range(5):
             try:
-                self._producer.publish(self._result,
+                self._producer.publish(result,
                         exchang=self._exch,
                         declare=[self._queue],
                         routing_key=self._queue_name
                         )
                 break
-            except Exception, e:
-                self._logger.error('send info error[%s]' %e)
+            except:
+                self._logger.error('send info error[%s]' %traceback.format_exc())
                 time.sleep(10)
                 self.reConn()
                 self.setProducer()
@@ -94,13 +78,16 @@ class appCrawlerQueue(object):
     def __del__(self):
         self._conn.release()
 
+
 def getTask(conn):
     conn.setConsumer()
-    print conn.getTask()
+    print(conn.getTask())
+
 
 def setTask(conn, task):
     conn.setProducer()
     conn.setTask(task)
+
 
 def main():
 
@@ -108,15 +95,14 @@ def main():
     request_queue = 'task_queue_test'
     routing_key = 'routingkey'
     exchange = 'exchange'
-    response_queue = 'result_queue'
-
-    conn = appCrawlerQueue(url, exchange, routing_key, request_queue)
+    conn = AppCrawlerQueue(url, exchange, routing_key, request_queue)
 
     for i in range(5):
         setTask(conn, '{"a":1}')
+
 
 if __name__ == '__main__':
     try:
         main()
     except:
-        appLogger.error(traceback.format_exc())
+        print(traceback.format_exc())

@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
 import sys
 import logging
 from collections import OrderedDict
@@ -8,14 +6,13 @@ import json
 from contextlib import contextmanager
 import time
 import uuid
-reload(sys)
 sys.setdefaultencoding('utf-8')
 
 
 class MwFormatter(logging.Formatter):
-    '''
+    """
     rewrite formatter as json msg format
-    '''
+    """
 
     def __init__(self, fmt, datefmt, **kwargs):
         super(self.__class__, self).__init__(fmt, datefmt)
@@ -253,7 +250,7 @@ class ALogger(logging.Logger, object):
             self.message_undecorate()
 
 
-appLogger = ALogger('appCrawler', log_level='INFO')
+app_logger = ALogger('appCrawler', log_level='INFO')
 
 
 if __name__ == '__main__':

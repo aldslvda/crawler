@@ -4,6 +4,7 @@
 import json
 import sys
 
+
 class CrawlerDB(object):
     def __init__(self):
         self._host = ''
@@ -237,10 +238,10 @@ class appSystemConf(object):
 
 if __name__ == '__main__':
     if len(sys.argv) != 2:
-        print '%s config_file' % (sys.argv[0])
+        print('%s config_file' % (sys.argv[0]))
         sys.exit(0)
 
     appconf = appSystemConf()
     appconf.loadConfig(sys.argv[1])
-    print appconf
-    print dir(appconf)
+    print(appconf)
+    print(dir(appconf))

@@ -1,9 +1,5 @@
-#!/usr/bin/env python
-#coding: utf-8
+import json
 
-import simplejson as json
-import syslog
-SOURCETYPELIST = ('')
 
 class RequestData(object):
     def __init__(self):
@@ -144,8 +140,10 @@ class RequestData(object):
         
         
 def main():
-    print rd.parseToStr()
-    print rd.parseToJson()
+    rd = RequestData()
+    print(rd.hostparseToStr())
+    print(rd.hostparseToJson())
+
 
 if __name__ == '__main__':
     main()
